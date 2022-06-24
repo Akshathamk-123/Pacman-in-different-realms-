@@ -9,3 +9,7 @@ This code will not work in any other coding platform except Turbo C as we have u
 graphics.h is an outdated header file but very helpful for creating games in C.
 So, if the code has to be executed elsewhere except Turbo C, it is recommended to build the game either using gui in python or Javascript.
 
+CONTRIBUTORS:
+Amulya Marali
+Aishwarya L Patil
+
