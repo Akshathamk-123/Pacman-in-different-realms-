@@ -11,7 +11,7 @@ So, if the code has to be executed elsewhere except Turbo C, it is recommended t
 
 CONTRIBUTORS:
 
-Amulya Marali
+Amulya Marali:https://github.com/amulyamarali 
 
-Aishwarya L Patil
+Aishwarya L Patil:https://github.com/AishwaryaLPatil?tab=repositories
 
