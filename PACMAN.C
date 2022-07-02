@@ -1,9 +1,13 @@
+#define ON 1
+#define OFF 0
 #include<stdio.h>           //standard input and output
 #include<stdlib.h>          //contains exit() function
 #include<dos.h>             //producing sound, date and time functions; contains sound(), nosound(),delay();
 #include<conio.h>           //getch(),textcolor()
 #include<graphics.h>        //includes c grphics
 #include<math.h>            //includes maths functions
+#include<string.h>
+char nameString[100];
 char ch, sc[10];                //ch=getch();   sc is an array of score
 int maxx, maxy, gridx, gridy;   //Maximum x and y coordinate for current graphics mode and driver
                                 //gridx and gridy are variables
@@ -25,7 +29,10 @@ int tx2, ty2, tx3, ty3, r3;         //P speed of the ghosts
 char c;
 float offset, octave[7]={130.81,146.83,164.81,174.61,196,220,246.94};
 int g;
-
+int second_page(void);
+void doCursor(int);
+void newLine();
+void getGrString(char *);
 void kill_ocean();//kill will remain the same for all of them 
 void kill_space();//kill will remain the same for all of them 
 void kill_forest();//kill will remain the same for all of them 
@@ -56,6 +63,7 @@ void first_page()//FIRST PAGE
     (x_radius, y_radius) are x and y radius of sector.
     */
     setcolor(WHITE);
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     outtextxy(maxx/2-25, maxy/2, "Pacman");
     outtextxy(maxx/2-84, maxy-50, "Press any key to start");
     /*
@@ -75,7 +83,8 @@ void first_page()//FIRST PAGE
     sound(octave[6]*2);
     delay(15);
     nosound();
-    cleardevice();          //clears the screen
+    cleardevice(); 	//clears the screen
+	second_page();
     outtextxy(maxx/2-42, 120, "CHOOSE ANY REALM");
     
 	setcolor(LIGHTBLUE);
@@ -128,23 +137,23 @@ void initialize_ocean()
     int m[20][19]={
 {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,1,1,3,0,1,1,1,3,1,1,1,1,1,0,1,1,1,0},
-{0,1,0,1,0,1,1,0,1,1,1,0,1,1,0,1,0,1,0},
-{0,1,0,1,1,2,0,0,0,2,0,0,0,2,1,1,0,1,0},
-{0,1,1,1,0,2,2,2,2,2,2,2,2,2,0,1,1,1,0},
-{0,1,1,1,0,2,2,2,0,0,0,2,2,2,0,1,1,1,0},
-{0,1,0,0,0,0,0,2,2,3,2,2,0,0,0,0,0,1,0},
-{0,1,1,3,0,2,2,2,0,0,0,2,2,3,0,1,1,1,0},
-{0,3,1,1,1,2,0,2,2,2,2,2,0,2,1,1,1,1,0},
-{0,1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,1,0},
-{0,1,1,1,1,1,2,2,3,0,2,2,2,2,3,1,1,1,0},
-{0,1,1,0,1,0,2,0,0,0,0,0,2,2,0,1,1,3,0},
-{0,1,0,0,1,0,2,2,2,2,2,2,2,2,0,1,0,0,0},
-{0,1,3,0,1,0,0,1,0,2,0,0,1,1,0,3,1,1,0},
-{0,1,1,1,1,1,1,1,0,1,3,0,0,1,1,1,1,1,0},
-{0,1,0,0,1,1,1,3,1,1,1,1,1,1,1,0,0,1,0},
-{0,1,1,1,1,0,1,0,0,0,0,0,1,0,1,1,1,1,0},
-{0,1,1,0,3,0,1,1,1,3,1,1,1,0,4,0,1,1,0},
+{0,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,0},
+{0,1,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0},
+{0,1,1,3,1,0,1,1,1,0,1,1,1,0,1,3,1,1,0},
+{0,0,0,0,1,0,0,0,2,0,2,0,0,0,1,0,0,0,0},
+{0,1,3,1,1,0,2,2,2,2,2,2,2,0,3,1,1,1,0},
+{0,1,0,0,1,0,2,0,0,2,0,0,2,0,1,0,0,1,0},
+{0,1,1,1,3,0,2,2,2,2,2,2,2,0,1,1,1,3,0},
+{0,1,0,0,1,0,2,0,2,0,2,0,2,0,1,0,0,1,0},
+{0,1,1,1,1,0,2,2,2,2,2,2,2,0,1,1,1,1,0},
+{0,0,0,0,1,0,2,0,0,0,0,0,2,0,1,0,0,0,0},
+{0,3,1,1,1,1,3,1,1,0,1,1,1,1,3,1,1,1,0},
+{0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0},
+{0,1,1,0,1,1,1,3,1,2,1,1,1,3,1,0,1,4,0},
+{0,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,0},
+{0,1,3,1,1,0,3,1,1,0,1,1,1,0,1,3,1,1,0},
+{0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,1,0},
+{0,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,3,0},
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
        
        
@@ -213,25 +222,24 @@ void initialize_forest()
     int m[20][19]={
 {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,3,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,4,0},
-{0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,0,3,1,0},
-{0,1,0,3,1,1,1,3,0,1,1,1,1,1,1,0,0,1,0},
-{0,1,0,3,1,0,0,1,1,1,1,3,1,1,1,0,1,1,0},
-{0,1,0,0,1,1,1,2,0,0,0,0,0,3,1,0,3,1,0},
-{0,1,1,1,1,3,0,2,2,2,2,2,2,2,2,0,0,1,0},
-{0,1,3,1,1,1,0,2,2,2,0,0,2,0,1,0,3,1,0},
-{0,1,1,1,0,0,0,0,0,2,2,2,2,0,1,1,1,1,0},
-{0,1,1,1,1,1,1,2,2,2,0,2,2,0,0,0,1,1,0},
-{0,1,0,0,3,1,1,2,2,2,0,0,2,0,3,1,1,1,0},
-{0,1,3,0,1,0,1,2,2,0,2,0,2,0,1,0,1,1,0},
-{0,1,1,0,1,0,1,0,0,0,2,2,2,1,1,0,3,1,0},
-{0,1,1,0,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0},
-{0,1,1,1,1,0,2,1,1,1,3,1,1,1,1,1,1,1,0},
-{0,1,3,0,1,0,0,0,0,1,1,1,0,3,1,1,1,1,0},
-{0,1,0,0,1,1,1,3,1,1,0,0,0,0,0,0,1,1,0},
-{0,1,1,3,1,1,1,1,1,3,1,1,1,1,3,1,1,1,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-	};
+{0,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,0},
+{0,1,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0},
+{0,1,1,3,1,0,1,1,1,0,1,1,1,0,1,3,1,1,0},
+{0,0,0,0,1,0,0,0,2,0,2,0,0,0,1,0,0,0,0},
+{0,1,3,1,1,0,2,2,2,2,2,2,2,0,3,1,1,1,0},
+{0,1,0,0,1,0,2,0,0,2,0,0,2,0,1,0,0,1,0},
+{0,1,1,1,3,0,2,2,2,2,2,2,2,0,1,1,1,3,0},
+{0,1,0,0,1,0,2,0,2,0,2,0,2,0,1,0,0,1,0},
+{0,1,1,1,1,0,2,2,2,2,2,2,2,0,1,1,1,1,0},
+{0,0,0,0,1,0,2,0,0,0,0,0,2,0,1,0,0,0,0},
+{0,3,1,1,1,1,3,1,1,0,1,1,1,1,3,1,1,1,0},
+{0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0},
+{0,1,1,0,1,1,1,3,1,2,1,1,1,3,1,0,1,4,0},
+{0,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,0},
+{0,1,3,1,1,0,3,1,1,0,1,1,1,0,1,3,1,1,0},
+{0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,1,0},
+{0,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,3,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}	};
     for (i=0; i<20; i++)
         for (j=0; j<19; j++)
             map[i][j]= m[i][j];
@@ -292,6 +300,7 @@ void start_ocean()//FIRST PAGE
     int i, n;
     cleardevice();          //clears the screen
 	setcolor(YELLOW);
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     outtextxy(maxx/2-55, 120, "INSTRUCTIONS");
     outtextxy(maxx/2-90, 180, "Your aim is to collect");
 	outtextxy(maxx/2-180, 200, "fishes(orange triangles) carrying 1 point");
@@ -314,6 +323,7 @@ void start_space()
     int i, n;
 	cleardevice();
 	setcolor(YELLOW);
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     outtextxy(maxx/2-55, 120, "INSTRUCTIONS");
     outtextxy(maxx/2-90, 180, "Your aim is to collect");
 	outtextxy(maxx/2-150, 200, "stars(white circles) carrying 1 point");
@@ -335,6 +345,7 @@ void start_forest()
 	int i, n;
 	cleardevice();
 	setcolor(YELLOW);
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
 	outtextxy(maxx/2-55, 120, "INSTRUCTIONS");
     outtextxy(maxx/2-90, 180, "Your aim is to collect");
 	outtextxy(maxx/2-150, 200, "fruits(red circles) carrying 1 point");
@@ -358,6 +369,7 @@ void dif()  // choosing the speed
     {
     setcolor(YELLOW);
     cleardevice();
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     outtextxy(maxx/2-70, 100, "LEVEL THE WAY YOU WANT");
     outtextxy(maxx/2-180, 130, "Choose the speed at which the game progresses");
     outtextxy(maxx/2-42, 170, "[S] Slow");
@@ -397,7 +409,7 @@ void dif()  // choosing the speed
 }
  
 void slice(int p, int q, int sangle, int eangle, int rad)       //pacman
-    {
+{
     int i,j;
     if(sangle>eangle){
     circle(p,q,rad);                    //circle(int x, int y, radius)
@@ -586,12 +598,12 @@ void show_forest()//DEFINING DESIGN IN THE GAME PLATFORM
 		//bar(int left_from the left screen, int top_from the top of the screen , int right_ from the left screen , int bottom_from the bottom of the screen)
 		break;
 		case 1:
-		setcolor(RED);//points
+		setcolor(LIGHTRED);//points
 		setfillstyle(SOLID_FILL, LIGHTGREEN);
 		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
-		setfillstyle(SOLID_FILL, RED);
+		setfillstyle(SOLID_FILL, LIGHTRED);
 		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 3);
-		floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,RED);
+		floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,LIGHTRED);
 		break;
 		case 2:
 		setfillstyle(SOLID_FILL, LIGHTGREEN);
@@ -604,9 +616,15 @@ void show_forest()//DEFINING DESIGN IN THE GAME PLATFORM
 		setfillstyle(SOLID_FILL, BROWN);
 		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
 		floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,BROWN);
+		break;
 		case 4:
 		setcolor(YELLOW);//points
-		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+		setfillstyle(SOLID_FILL,LIGHTGREEN);
+        bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+        setfillstyle(SOLID_FILL, YELLOW);
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+        floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,YELLOW);
+        break;
 		}
 	}
 	}
@@ -636,7 +654,8 @@ void show_forest()//DEFINING DESIGN IN THE GAME PLATFORM
 
 void update_ocean(int l, int m)       //passing index positions of the 2d array(outlook)
 {
-    int i,j,r=1;
+	int i,j,r=1;
+    settextstyle(SMALL_FONT,HORIZ_DIR,6);
     sprintf(sc,"%d", score);        //sprintf(char *str, const char *string,...);
     //String print. Instead of printing on console, it store output on char buffer which are specified in sprintf.
     setcolor(WHITE);
@@ -662,11 +681,14 @@ void update_ocean(int l, int m)       //passing index positions of the 2d array(
         break;
  
         case 1:
-        setfillstyle(SOLID_FILL, CYAN);
-        bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
-        setcolor(BROWN);
-        //circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 2);
-        sector(j*gridx+gridx/2+offset, i*gridy+gridy/2,sfish,efish,7, 7);
+            setcolor(BROWN);//points(fish)
+		    setfillstyle(SOLID_FILL, CYAN);
+			bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+			setfillstyle(SOLID_FILL, BROWN);
+			sector(j*gridx+gridx/2+offset, i*gridy+gridy/2,sfish,efish,7, 7);
+			//sector(int x, int y, int s_angle, int e_angle, int x_radius, int y_radius);
+			//circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 3);
+			floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,BROWN);
         break;
  
         case 2:
@@ -675,19 +697,22 @@ void update_ocean(int l, int m)       //passing index positions of the 2d array(
         break;
  
         case 3:
-        setfillstyle(SOLID_FILL, CYAN);
-        bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
-        setcolor(LIGHTBLUE);
-        //setfillstyle(SOLID_FILL, LIGHTBLUE);
-        //circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 2);
-        sector(j*gridx+gridx/2+offset, i*gridy+gridy/2,sjfish,ejfish,5, 5);
+        	setcolor(LIGHTBLUE);
+			setfillstyle(SOLID_FILL,CYAN);
+			bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+			setfillstyle(SOLID_FILL, LIGHTBLUE);
+			sector(j*gridx+gridx/2+offset, i*gridy+gridy/2,sjfish,ejfish,5, 5);
+			//circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+			floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,LIGHTBLUE);
         break;
         case 4:
-        setfillstyle(SOLID_FILL, CYAN);
-        //circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
-        bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
-        setcolor(WHITE);
-        circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+            setcolor(WHITE);
+			setfillstyle(SOLID_FILL, CYAN);
+			bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+			setfillstyle(SOLID_FILL, WHITE);
+			//setcolor(WHITE);
+			circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+			floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,WHITE);
         break;
         }
     }
@@ -715,6 +740,7 @@ void update_ocean(int l, int m)       //passing index positions of the 2d array(
 void update_space(int l, int m)
 {
     int i,j,r=1;
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     sprintf(sc,"%d", score);
     setcolor(WHITE);
     setviewport(offset,0,offset+120,gridy,1);
@@ -808,6 +834,7 @@ void update_space(int l, int m)
 void update_forest(int l, int m)
 {
 	int i,j,r=1;
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
 	sprintf(sc,"%d", score);
 	setcolor(WHITE);
 	setviewport(offset,0,offset+120,gridy,1);
@@ -830,26 +857,50 @@ void update_forest(int l, int m)
 		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
 		break;
 		case 1:
+		/*setfillstyle(SOLID_FILL, LIGHTGREEN);
+		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+		setcolor(MAGENTA);
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 2);
+        floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,MAGENTA);*/
+        setcolor(LIGHTRED);//points
 		setfillstyle(SOLID_FILL, LIGHTGREEN);
 		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
-		setcolor(RED);
-		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 2);
+		setfillstyle(SOLID_FILL, LIGHTRED);
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 3);
+		floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,LIGHTRED);
 		break;
 		case 2:
 		setfillstyle(SOLID_FILL, LIGHTGREEN);
 		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
 		break;
 		case 3:
-		setfillstyle(SOLID_FILL, LIGHTGREEN);
+		/*setfillstyle(SOLID_FILL, LIGHTGREEN);
 		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
 		setcolor(BROWN);
 		setfillstyle(SOLID_FILL,LIGHTGREEN);
-		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 2);
-		case 4:
-		setfillstyle(SOLID_FILL, LIGHTGREEN);
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+        floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,BROWN);*/
+        setcolor(BROWN);
+		setfillstyle(SOLID_FILL,LIGHTGREEN);
 		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
-		setcolor(YELLOW);
-		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 2);
+		setfillstyle(SOLID_FILL, BROWN);
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+		floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,BROWN);
+        break;
+		case 4:
+		/*setcolor(YELLOW);
+        setfillstyle(SOLID_FILL, LIGHTGREEN);
+		bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+		
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+        floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,YELLOW);*/
+        setcolor(YELLOW);//points
+		setfillstyle(SOLID_FILL,LIGHTGREEN);
+        bar(j*gridx+1+offset, i*gridy+1, (j+1)*gridx+offset, (i+1)*gridy);
+        setfillstyle(SOLID_FILL, YELLOW);
+		circle(j*gridx+gridx/2+offset, i*gridy+gridy/2, 4);
+        floodfill(j*gridx+gridx/2+offset, i*gridy+gridy/2,YELLOW);
+        break;
 		}
 	}
 	}
@@ -1802,7 +1853,7 @@ void main()
 				ghost2_ocean();
 				ghost3_ocean();
 				update_ocean(x,y);
-				if (score==150)
+				if (score>=150)
 				{
 					delay(500);
 					kill_ocean();
@@ -2061,7 +2112,7 @@ void main()
         ghost2_space();
         ghost3_space();
         update_space(x,y);
-        if (score==150)
+        if (score>=150)
         {
             delay(500);
             kill_space();
@@ -2283,7 +2334,7 @@ void main()
 		ghost2_forest();
 		ghost3_forest();
 		update_forest(x,y);
-		if (score==150)
+		if (score>=150)
 		{
 			delay(500);
 			kill_forest();
@@ -2298,13 +2349,16 @@ void kill_ocean()
 {
     clrscr();
     cleardevice();
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     if (score==150)
     {
+		outtextxy(maxx/2-40,maxy/2-80,nameString);
         outtextxy(maxx/2-40, maxy/2-50, "YOU WIN!");
         outtextxy(maxx/2-180, maxy-50, "(Press Spacebar to play again, Esc to exit)");
     }
     else if (death==3)
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-46, maxy/2-50, "GAME OVER!");
         outtextxy(maxx/2-190, maxy-50, "(Press Spacebar to start new game, Esc to exit)");
         sprintf(sc, "%d", score);
@@ -2313,6 +2367,7 @@ void kill_ocean()
     }
     else
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-46, maxy/2-50, "GAME PAUSED");
         outtextxy(maxx/2-240, maxy-50, "(Press P to resume, Spacebar to start new game, Esc to exit)");
         sprintf(sc, "%d", score);
@@ -2345,13 +2400,16 @@ void kill_space()
 {
     clrscr();
     cleardevice();
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     if (score==150)
     {
+		outtextxy(maxx/2-40,maxy/2-80,nameString);
         outtextxy(maxx/2-40, maxy/2-50, "YOU WIN!");
         outtextxy(maxx/2-180, maxy-50, "(Press Spacebar to play again, Esc to exit)");
     }
     else if (death==3)
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-46, maxy/2-50, "GAME OVER!");
         outtextxy(maxx/2-190, maxy-50, "(Press Spacebar to start new game, Esc to exit)");
         sprintf(sc, "%d", score);
@@ -2360,6 +2418,7 @@ void kill_space()
     }
     else
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-46, maxy/2-50, "GAME PAUSED");
         outtextxy(maxx/2-240, maxy-50, "(Press P to resume, Spacebar to start new game, Esc to exit)");
         sprintf(sc, "%d", score);
@@ -2392,13 +2451,16 @@ void kill_forest()
 {
     clrscr();
     cleardevice();
+	settextstyle(SMALL_FONT,HORIZ_DIR,6);
     if (score==150)
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-40, maxy/2-50, "YOU WIN!");
         outtextxy(maxx/2-180, maxy-50, "(Press Spacebar to play again, Esc to exit)");
     }
     else if (death==3)
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-46, maxy/2-50, "GAME OVER!");
         outtextxy(maxx/2-190, maxy-50, "(Press Spacebar to start new game, Esc to exit)");
         sprintf(sc, "%d", score);
@@ -2407,6 +2469,7 @@ void kill_forest()
     }
     else
     {
+		outtextxy(maxx/2-46,maxy/2-80,nameString);
         outtextxy(maxx/2-46, maxy/2-50, "GAME PAUSED");
         outtextxy(maxx/2-240, maxy-50, "(Press P to resume, Spacebar to start new game, Esc to exit)");
         sprintf(sc, "%d", score);
@@ -2434,5 +2497,148 @@ void kill_forest()
     }
 }
 
-
+void newLine()
+  {
+      moveto(0,gety()+textheight("A"));
+  }
+  
+/* getGrString: takes a parameter of an input buffer, echoes
+       characters typed, and fills input buffer.
+       Function returns upon  or .
+       Function responds appropriately to backspace.
+       No provision is made to guard against overflow of
+       the buffer or going over the right screen border. */
+void getGrString(char *inputString)
+  {
+     /* stringIndex is the current place in the string, so that we
+        may build it as we go along getting input characters */
+     int stringIndex=0;
+     /* xVal will store the screen position for each char as we go
+        along, so that we can erase and move the cursor
+        successfully during backspacing */
+     int xVal[255];
+     /* inputChar: the character typed;  outString: the string
+        version of that character */
+     char inputChar, outString[2];
+     /* oldColor saves the previous color value, to restore after
+        erasing */
+     int oldColor;
+     /* outString is just one char + a null-terminator */
+     outString[1]=0;
+     /* screen starting position for input char string */
+     xVal[0]=getx();
+     do
+     {
+        /* turn on the cursor */
+        doCursor(ON);
+        /* get a single character, in no-echo mode */
+        inputChar=getch();
+        /* turn off the cursor before we write a new character */
+        doCursor(OFF);
+        /* avoid dealing with all special keys */
+        if (inputChar==0) getch();
+        else
+        {
+            if (inputChar==8) { /* backspace */
+                /* save old character color */
+                oldColor=getcolor();
+                /* back up in the string */
+                --stringIndex;
+                /* no backing up past beginning of string! */
+                if (stringIndex<0) stringIndex=0;
+                /* move to (old horz position, current vert
+                   position) */
+                moveto(xVal[stringIndex],gety());
+                /* erasing consists of rewriting the old character
+                   in the background color */
+                setcolor(getbkcolor());
+                outString[0]=inputString[stringIndex];
+                outtext(outString);
+                /* correct the current screen position since it
+                   will have advanced after writing outString */
+                moveto(xVal[stringIndex],gety());
+                /* restore the text color we had */
+                setcolor(oldColor);
+            }
+            else { /* put a character into the string and draw it
+                      on screen */
+                /* stuff the input into the string */
+                inputString[stringIndex]=inputChar;
+                /* draw the character on screen, as a string
+                   (since that's what outttext() needs) */
+                outString[0]=inputChar;
+                outtext(outString);
+                /* proceed to next char in the string */
+                ++stringIndex;
+                /* save horz position for possible backspacing */
+                xVal[stringIndex]=getx();
+            }
+         }
+     /* end getting characters on ENTER or LF */
+     } while(inputChar!=13 && inputChar!=10);
+     /* null-terminate input string before returning */
+     inputString[stringIndex]=0;
+  }
+  /* doCursor: draw or undraw the cursor, depending on whether the
+  parameter
+     is non-zero (ON) or zero (OFF)
+  */
+void doCursor(int on) {
+      int curX,oldColor;
+      /* we'll use an underbar as a cursor */
+      char uBarStr[2] = { '_',0 };
+      /* if cursor goes OFF, erase by drawing w/bkground color */
+      if (!on) {
+          oldColor=getcolor();
+          setcolor(getbkcolor());
+      }
+      /* save horizontal position before drawing cursor */
+      curX=getx();
+      outtext(uBarStr);
+      moveto(curX,gety());
+      /* if we changed the color to erase cursor, change it back */
+      if (!on) setcolor(oldColor);
+  }
+int second_page(void)//for name 
+  {
+     //int age;
+     /* request auto detection */
+     int gdriver = DETECT, gmode, errorcode;
+     /* initialize graphics and local variables */
+     initgraph(&gdriver, &gmode, "C:\\TURBOC3\\BGI");
+     /* read result of initialization */
+     errorcode = graphresult();
+     if (errorcode != grOk)  /* an error occurred */
+     {
+        printf("Graphics error: %s\n", grapherrormsg(errorcode));
+        printf("Press any key to halt:");
+        getch();
+        return(1); /* terminate with an error code */
+     }
+     /* use some colors to show that getGrString() handles
+        foreground and background colors successfully. */
+     setbkcolor(BLACK);
+     setcolor(WHITE);
+     /* left-to-right gothic font, user-sizeable */
+     /* change this as you like, except getGrString assumes
+        left-to-right text direction! */
+     settextstyle(SMALL_FONT,HORIZ_DIR,6);
+	 
+     /* get a reasonable screen position */
+     moveto(0,0);
+     outtext("Enter your name: ");
+     getGrString(nameString);
+     newLine();
+	 //settextstyle(SMALL_FONT,HORIZ_DIR,8);
+     //outtext("Name: ");
+	 //outtext(nameString);
+     newLine();
+     outtext("Press key to continue! ");
+     getch();
+     //closegraph();
+	 cleardevice();
+	 return 0;
+ }
+  /* newLine: primitive yet serviceable routine for a new text line
+              in graphics mode */
 
